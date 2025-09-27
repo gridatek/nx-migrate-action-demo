@@ -15,3 +15,4 @@ jobs:
       - uses: gridatek/nx-migrate-action@v0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          nx-package: 'nx'
