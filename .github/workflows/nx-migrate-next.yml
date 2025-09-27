@@ -15,5 +15,5 @@ jobs:
       - uses: gridatek/nx-migrate-action@v0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          nx-version-tag: 'next'
+          nx-version: 'next'
           merge-strategy: 'always-pr'
