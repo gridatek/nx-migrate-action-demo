@@ -1,11 +1,11 @@
-name: Nx Migration
+name: Nx Migration Canary Version
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 1 * * *'  # Daily at 1 AM
 
 jobs:
-  nx-migrate:
+  nx-migrate-canary:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
