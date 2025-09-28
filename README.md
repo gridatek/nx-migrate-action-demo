@@ -1,7 +1,5 @@
 # Nx Migrate Action Demo
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
-
 This repository demonstrates how to set up automated Nx migrations using the [`gridatek/nx-migrate-action`](https://github.com/gridatek/nx-migrate-action) GitHub Action with auto-merge capabilities.
 
 ## 🚀 Quick Setup Guide
