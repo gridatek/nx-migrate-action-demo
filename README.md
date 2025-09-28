@@ -1,90 +1,219 @@
-# NxMigrateActionDemo
+# Nx Migrate Action Demo
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+This repository demonstrates how to set up automated Nx migrations using the [`gridatek/nx-migrate-action`](https://github.com/gridatek/nx-migrate-action) GitHub Action with auto-merge capabilities.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## 🚀 Quick Setup Guide
 
-## Finish your CI setup
+Follow these steps to create your own Nx workspace with automated migrations:
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/zd4dD5sypJ)
+### Step 1: Create a New Nx Workspace
 
+```bash
+# Create a new Nx workspace
+npx create-nx-workspace@latest my-nx-workspace --preset=ts --packageManager=npm
 
-## Generate a library
+# Navigate to your workspace
+cd my-nx-workspace
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+# Initialize git repository
+git init
+git add .
+git commit -m "Initial commit"
 ```
 
-## Run tasks
+### Step 2: Set Up GitHub Repository
 
-To build the library use:
+1. Create a new repository on GitHub
+2. Push your local workspace to GitHub:
 
-```sh
-npx nx build pkg1
+```bash
+git remote add origin https://github.com/your-username/my-nx-workspace.git
+git branch -M main
+git push -u origin main
 ```
 
-To run any task with Nx use:
+### Step 3: Add Nx Migration Workflow
 
-```sh
-npx nx <target> <project-name>
+Create `.github/workflows/nx-migrate.yml`:
+
+```yaml
+name: Nx Migration
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *'  # Daily at 1 AM
+
+jobs:
+  nx-migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: gridatek/nx-migrate-action@v0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+### Step 4: Add CI Workflow
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Create `.github/workflows/ci.yml`:
 
-## Versioning and releasing
+```yaml
+name: CI
 
-To version and release the library use
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm ci --legacy-peer-deps
+      - run: npx nx run-many -t lint test build typecheck
 ```
-npx nx release
+
+### Step 5: Add Auto-merge Workflow (Optional)
+
+Create `.github/workflows/auto-merge-nx-prs.yml`:
+
+```yaml
+name: Auto-merge Nx Migration PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  check_suite:
+    types: [completed]
+  status: {}
+
+jobs:
+  auto-merge:
+    name: Auto-merge Nx Migration PR
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.user.login == 'github-actions[bot]' &&
+      contains(github.event.pull_request.labels.*.name, 'nx-migrate-action')
+
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+
+    steps:
+      - name: Wait for CI checks
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        id: wait-for-checks
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          timeoutSeconds: 1800 # 30 minutes
+
+      - name: Auto-merge PR
+        if: steps.wait-for-checks.outputs.conclusion == 'success'
+        uses: pascalgn/merge-action@v0.15.6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          merge_method: squash
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+### Step 6: Configure Branch Protection (Recommended)
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. Go to your repository's Settings → Branches
+2. Add a branch protection rule for `main`:
+   - Require status checks to pass before merging
+   - Require pull request reviews before merging
+   - Include administrators
 
-## Keep TypeScript project references up to date
+## 🎯 How It Works
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+1. **Daily Check**: The migration workflow runs daily at 1 AM
+2. **Version Detection**: Checks for new Nx versions
+3. **Migration**: Automatically runs `nx migrate` if updates are available
+4. **PR Creation**: Creates a pull request with migration changes
+5. **CI Validation**: Your CI workflow validates the changes
+6. **Auto-merge**: If CI passes, the PR is automatically merged (if enabled)
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+## 📚 Learn More About This Setup
 
-```sh
-npx nx sync
+### Advanced Configuration
+
+The `nx-migrate-action` supports additional configuration options:
+
+```yaml
+- uses: gridatek/nx-migrate-action@v0
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    package-manager: npm  # or yarn, pnpm
+    pr-labels: nx-migrate-action,dependencies  # Custom labels
+    target-branch: main  # Target branch for PRs
+    dev-mode: false  # Enable for testing
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### Migration Schedules
 
-```sh
-npx nx sync:check
+Choose the schedule that fits your team:
+
+- **Daily** (`'0 1 * * *'`): Aggressive, get updates immediately
+- **Weekly** (`'0 1 * * 1'`): Recommended for most teams
+- **Monthly** (`'0 1 1 * *'`): Conservative approach
+
+
+## 🎉 Benefits of Automated Nx Migrations
+
+- **Stay Current**: Always running the latest Nx version with security patches
+- **Reduce Manual Work**: No more remembering to check for updates
+- **Team Consistency**: Everyone works with the same Nx version
+- **CI Integration**: Changes are validated before merging
+- **Safe Migrations**: Review process through pull requests
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **Migration fails**: Check the PR for migration errors and fix manually
+2. **Auto-merge not working**: Ensure branch protection rules allow the bot to merge
+3. **CI fails**: Migration might introduce breaking changes requiring manual fixes
+
+### Manual Override
+
+You can always run migrations manually:
+
+```bash
+npx nx migrate latest
+npx nx migrate --run-migrations
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+---
 
+## 🚀 About nx-migrate-action
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This demo uses the [`gridatek/nx-migrate-action`](https://github.com/gridatek/nx-migrate-action) GitHub Action.
 
-## Install Nx Console
+- **GitHub Repository**: [gridatek/nx-migrate-action](https://github.com/gridatek/nx-migrate-action)
+- **GitHub Marketplace**: [Nx Migration Action](https://github.com/marketplace/actions/nx-migration-action)
+- **Issues & Support**: [Report issues](https://github.com/gridatek/nx-migrate-action/issues)
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### Contributing
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Found a bug or have a feature request? Please [open an issue](https://github.com/gridatek/nx-migrate-action/issues) or submit a pull request!
