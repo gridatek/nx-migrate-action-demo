@@ -118,11 +118,11 @@ updates:
 Create `.github/workflows/nx-migrate.yml`:
 
 ```yaml
-name: Nx Migration
+name: Nx Migrate
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 1 * * *'  # Daily at 1 AM
+    - cron: '0 1 * * *' # Daily at 1 AM
 
 jobs:
   nx-migrate:
@@ -132,9 +132,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: gridatek/nx-migrate-action@v0
+      - uses: actions/setup-node@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          node-version: '22'
+          cache: 'npm' # or 'yarn', 'pnpm'
+
+      - uses: gridatek/nx-migrate-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Step 6: Add CI Workflow
