@@ -107,7 +107,7 @@ Here's how to protect your main branch using GitHub's modern Rulesets approach:
 - **Require status checks to pass**
   - Enable "Require status checks to pass"
   - Enable "Require branches to be up to date before merging"
-  - Add your GitHub Actions workflow jobs as required status checks
+  - Add required status checks: `ci` (job name from CI workflow)
 
 - **Additional protections**
   - Enable "Require conversation resolution before merging"

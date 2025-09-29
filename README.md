@@ -59,7 +59,7 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 **Require status checks**
 - ✅ Enable **"Require status checks to pass"**
 - ✅ Enable **"Require branches to be up to date before merging"**
-- Add your CI workflow status checks (e.g., `main` from your CI workflow)
+- Add required status checks: `ci` (this is the job name from the CI workflow in `.github/workflows/ci.yml`)
 
 **Additional protections**
 - ✅ Enable **"Require conversation resolution before merging"**
@@ -168,7 +168,7 @@ permissions:
   contents: read
 
 jobs:
-  main:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
