@@ -113,7 +113,10 @@ Here's how to protect your main branch using GitHub's modern Rulesets approach:
 - **Additional protections**
   - Enable "Require conversation resolution before merging"
   - Enable "Block force pushes"
-  - Configure "Restrict pushes that create files" if needed
+  - Enable "Require linear history" (forces squash or rebase merges, prevents merge commits)
+
+- **Optional: Restrict merge type**
+  - Consider enabling "Require a merge type of merge, squash, or rebase" and select only "squash" to match the auto-merge workflow
 
 **Rulesets Benefits**: Modern approach (2024+) with better flexibility, multiple rules can layer together, and improved organization-level management.
 

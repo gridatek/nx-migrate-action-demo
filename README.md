@@ -67,10 +67,24 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 **Additional protections**
 - ✅ Enable **"Require conversation resolution before merging"**
 - ✅ Enable **"Block force pushes"**
-- ✅ Configure **"Restrict pushes that create files"** if needed
+- ✅ Enable **"Require linear history"** (forces squash or rebase merges, prevents merge commits)
+
+**Optional: Restrict merge type**
+- Consider enabling **"Require a merge type of merge, squash, or rebase"** and select only **"squash"** to match your auto-merge workflow
 
 #### Finalize Ruleset
 1. Click **"Create"** to activate the ruleset
+
+#### Configure Repository Merge Methods (Optional)
+After creating the ruleset, you may also want to configure allowed merge methods at the repository level:
+
+1. Go to **Settings** → **General** → **Pull Requests**
+2. Under **"Merge button"**, configure:
+   - ✅ **"Allow merge commits"** (optional)
+   - ✅ **"Allow squash merging"** (recommended, matches auto-merge workflow)
+   - ✅ **"Allow rebase merging"** (optional)
+
+> **Note**: At least one merge method must be enabled. If you want to enforce only squash merging, enable only "Allow squash merging" here and use the "Require a merge type" rule in your ruleset.
 
 > **Important**: Rulesets are GitHub's modern approach to branch protection (2024+). They offer better flexibility and can layer multiple rules together. Legacy branch protection rules are still supported but rulesets are recommended for new repositories.
 
