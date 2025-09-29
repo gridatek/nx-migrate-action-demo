@@ -107,7 +107,8 @@ Here's how to protect your main branch using GitHub's modern Rulesets approach:
 - **Require status checks to pass**
   - Enable "Require status checks to pass"
   - Enable "Require branches to be up to date before merging"
-  - Add required status checks: `ci` (job name from CI workflow)
+  - In the "Additional settings" section, type `ci` and click the ➕ plus icon to add it
+  - This corresponds to the job name from the CI workflow
 
 - **Additional protections**
   - Enable "Require conversation resolution before merging"
