@@ -260,16 +260,7 @@ jobs:
       github.event.pull_request.user.login == 'github-actions[bot]' &&
       contains(github.event.pull_request.labels.*.name, 'nx-migrate-action')
     steps:
-      - name: Wait for CI checks
-        uses: fountainhead/action-wait-for-check@v1.2.0
-        id: wait-for-checks
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          timeoutSeconds: 1800 # 30 minutes
-
       - name: Auto-merge PR
-        if: steps.wait-for-checks.outputs.conclusion == 'success'
         uses: pascalgn/merge-action@v0.15.6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
