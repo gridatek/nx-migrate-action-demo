@@ -102,7 +102,6 @@ Here's how to protect your main branch using GitHub's modern Rulesets approach:
 - **Require pull requests before merging**
   - Enable "Require a pull request before merging"
   - Set required number of reviewers to 0 (for solo projects) or at least 1 for team projects
-  - Enable "Dismiss stale reviews when new commits are pushed"
 
 - **Require status checks to pass**
   - Enable "Require status checks to pass"
