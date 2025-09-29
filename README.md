@@ -34,34 +34,42 @@ git push -u origin main
 
 ### Step 3: Configure Branch Protection (Recommended)
 
-Here's how to protect your main branch using GitHub Actions:
+Here's how to protect your main branch using GitHub's modern **Rulesets** approach:
 
-#### Navigate to Settings
+#### Navigate to Repository Rules
 1. Go to your repository on GitHub
-2. Click **Settings** → **Branches**
+2. Click **Settings** → **Rules** → **Rulesets**
 
-#### Add Branch Protection Rule
-1. Click "Add branch protection rule"
-2. Enter `main` (or your default branch name) in the branch name pattern
+#### Create New Branch Ruleset
+1. Click **"New ruleset"** → **"New branch ruleset"**
+2. Enter a **Ruleset name** (e.g., "Main Branch Protection")
+3. Set **Enforcement status** to **"Active"**
 
-#### Key Protection Settings
+#### Configure Branch Targeting
+1. Click **"Add a target"**
+2. Select **"Include default branch"** or specify `main` as the branch pattern
 
-**Require pull requests before merging**
-- ✅ Check "Require a pull request before merging"
-- Set required number of reviewers (recommended: at least 1)
-- ✅ Enable "Dismiss stale reviews when new commits are pushed"
+#### Key Protection Rules
 
-**Require status checks to pass**
-- ✅ Check "Require status checks to pass before merging"
-- ✅ Check "Require branches to be up to date before merging"
-- Add your GitHub Actions workflow jobs as required status checks (e.g., `main` from your CI workflow)
+**Require pull requests**
+- ✅ Enable **"Require a pull request before merging"**
+- Set **Required number of reviewers** (recommended: at least 1)
+- ✅ Enable **"Dismiss stale reviews when new commits are pushed"**
+
+**Require status checks**
+- ✅ Enable **"Require status checks to pass"**
+- ✅ Enable **"Require branches to be up to date before merging"**
+- Add your CI workflow status checks (e.g., `main` from your CI workflow)
 
 **Additional protections**
-- ✅ Check "Require conversation resolution before merging"
-- ✅ Check "Restrict pushes that create files"
-- ✅ Check "Do not allow bypassing the above settings" (removes admin override)
+- ✅ Enable **"Require conversation resolution before merging"**
+- ✅ Enable **"Block force pushes"**
+- ✅ Configure **"Restrict pushes that create files"** if needed
 
-> **Important**: These settings ensure that all code changes go through the proper review process and that your CI checks pass before any code is merged into the main branch.
+#### Finalize Ruleset
+1. Click **"Create"** to activate the ruleset
+
+> **Important**: Rulesets are GitHub's modern approach to branch protection (2024+). They offer better flexibility and can layer multiple rules together. Legacy branch protection rules are still supported but rulesets are recommended for new repositories.
 
 ### Step 4: Configure Dependabot (Optional)
 
