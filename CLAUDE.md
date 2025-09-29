@@ -81,6 +81,33 @@ npx nx release --dry-run
 - **Nx Migration** (`.github/workflows/nx-migrate.yml`): Daily automated Nx migrations using `gridatek/nx-migrate-action@v0`
 - **Auto-merge**: Configured for automatic PR merging of Nx migration PRs
 
+### Branch Protection Rules
+Here's how to protect your main branch using GitHub Actions:
+
+**Navigate to Settings**
+1. Go to your repository on GitHub
+2. Click Settings > Branches
+
+**Add Branch Protection Rule**
+1. Click "Add branch protection rule"
+2. Enter `main` (or your default branch name) in the branch name pattern
+
+**Key Protection Settings**
+- **Require pull requests before merging**
+  - Check "Require a pull request before merging"
+  - Set required number of reviewers (recommended: at least 1)
+  - Enable "Dismiss stale reviews when new commits are pushed"
+
+- **Require status checks to pass**
+  - Check "Require status checks to pass before merging"
+  - Check "Require branches to be up to date before merging"
+  - Add your GitHub Actions workflow jobs as required status checks
+
+- **Additional protections**
+  - Check "Require conversation resolution before merging"
+  - Check "Restrict pushes that create files"
+  - Check "Do not allow bypassing the above settings" (removes admin override)
+
 ### Development Environment
 - **VSCode Extensions**: Nx Console and Prettier recommended
 - **Node.js**: Version 20 specified in CI
