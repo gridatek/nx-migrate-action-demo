@@ -34,11 +34,18 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable auto-merge for patch and minor updates
+      - name: Wait for CI and merge patch and minor updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
+        run: |
+          # Wait for required status checks to pass
+          while ! gh pr checks "$PR_URL" --required; do
+            echo "Waiting for CI checks to pass..."
+            sleep 30
+          done
+          # Merge the PR once CI passes
+          gh pr merge --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,8 +64,15 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Auto-merge PR
-        run: gh pr merge --auto --squash "$PR_URL"
+      - name: Wait for CI and merge PR
+        run: |
+          # Wait for required status checks to pass
+          while ! gh pr checks "$PR_URL" --required; do
+            echo "Waiting for CI checks to pass..."
+            sleep 30
+          done
+          # Merge the PR once CI passes
+          gh pr merge --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
