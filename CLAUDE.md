@@ -77,9 +77,10 @@ npx nx release --dry-run
 - `.prettierrc`: Code formatting with single quotes
 
 ### GitHub Actions Integration
-- **CI Pipeline** (`.github/workflows/ci.yml`): Runs on push/PR with lint, test, build, typecheck
-- **Nx Migration** (`.github/workflows/nx-migrate.yml`): Daily automated Nx migrations using `gridatek/nx-migrate-action@v0`
-- **Auto-merge**: Configured for automatic PR merging of Nx migration PRs
+- **CI Pipeline** (`.github/workflows/ci.yml`): Runs on push/PR with lint, test, build, typecheck using Node.js 20
+- **Nx Migration** (`.github/workflows/nx-migrate.yml`): Daily automated Nx migrations using `gridatek/nx-migrate-action@v0` with Node.js 22
+- **Auto-merge** (`.github/workflows/auto-merge-dependency-prs.yml`): Unified workflow for auto-merging both Dependabot and Nx migration PRs
+- **Dependabot** (`.github/dependabot.yml`): Weekly dependency updates excluding Nx packages (handled by nx-migrate-action)
 
 ### Branch Protection Rules
 Here's how to protect your main branch using GitHub Actions:
@@ -110,9 +111,15 @@ Here's how to protect your main branch using GitHub Actions:
 
 ### Development Environment
 - **VSCode Extensions**: Nx Console and Prettier recommended
-- **Node.js**: Version 20 specified in CI
+- **Node.js**: Version 20 for CI, Version 22 for Nx migrations
 - **Package Manager**: NPM with legacy peer deps flag
 - **Code Style**: Prettier with single quotes, consistent formatting
+
+### Automated Dependency Management
+- **Nx Updates**: Handled by `gridatek/nx-migrate-action` with proper migrations
+- **Other Dependencies**: Managed by Dependabot (patch/minor auto-merge, major requires review)
+- **Conflict Prevention**: Dependabot ignores `@nx/*`, `nx`, and `@nrwl/*` packages
+- **Auto-merge Strategy**: Separate jobs for different bot types with CI validation
 
 ## Important Notes
 
@@ -121,3 +128,4 @@ Here's how to protect your main branch using GitHub Actions:
 - TypeScript project references are automatically maintained by Nx
 - CI runs `npx nx fix-ci` to provide recommendations for failures
 - The workspace is connected to Nx Cloud (ID: 68d7b76076755e5707bbb011)
+- Auto-merge workflows respect branch protection rules and require CI validation
