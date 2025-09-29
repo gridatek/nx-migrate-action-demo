@@ -47,27 +47,58 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 
 #### Configure Branch Targeting
 1. Click **"Add a target"**
-2. Select **"Include default branch"** or specify `main` as the branch pattern
+2. Select **"Include default branch"** (this will show as `~DEFAULT_BRANCH` in the configuration)
 
 #### Key Protection Rules
 
 **Require pull requests**
 - ✅ Enable **"Require a pull request before merging"**
-- Set **Required number of reviewers** (recommended: at least 1)
-- ✅ Enable **"Dismiss stale reviews when new commits are pushed"**
+- Set **Required number of reviewers** to **0** (for solo projects) or at least 1 for team projects
 
 **Require status checks**
 - ✅ Enable **"Require status checks to pass"**
 - ✅ Enable **"Require branches to be up to date before merging"**
-- Add your CI workflow status checks (e.g., `main` from your CI workflow)
+- In the **"Additional settings"** section:
+  - Type `ci` in the status check name field
+  - Click the **➕ plus icon** to add it
+  - This is the job name from your CI workflow in `.github/workflows/ci.yml`
 
 **Additional protections**
 - ✅ Enable **"Require conversation resolution before merging"**
-- ✅ Enable **"Block force pushes"**
-- ✅ Configure **"Restrict pushes that create files"** if needed
+- ✅ Enable **"Block force pushes"** (prevents `non_fast_forward` pushes)
+- ✅ Enable **"Restrict deletions"** (prevents branch deletion)
+
+**Merge method restrictions (within pull request rule)**
+- In the pull request settings, you can specify **"allowed_merge_methods"**
+- Set to **["squash"]** to match your auto-merge workflow and enforce squash-only merging
 
 #### Finalize Ruleset
 1. Click **"Create"** to activate the ruleset
+
+#### Configure Repository Merge Methods (Important)
+Configure allowed merge methods at the repository level to match your dependency merge workflows:
+
+1. Go to **Settings** → **General** → **Pull Requests**
+2. Under **"Merge button"**, configure:
+
+**Allow merge commits**
+- ❌ **Disable** (optional) - Adds all commits from head branch with a merge commit
+- Creates merge commits in history
+
+**Allow squash merging** ⭐
+- ✅ **Enable** (recommended) - Combines all commits into a single commit
+- **Matches our dependency merge workflow** which uses `--squash`
+- Creates clean, linear history
+
+**Allow rebase merging**
+- ❌ **Disable** (optional) - Adds all commits individually without merge commit
+- Can create complex history
+
+> **Important**:
+> - **At least one option must be enabled**
+> - **Our dependency merge workflows use squash merging** (`--squash` flag)
+> - **For clean history**: Enable only "Allow squash merging"
+> - **If you have linear history requirement** in branch protection, you must enable squashing or rebasing
 
 > **Important**: Rulesets are GitHub's modern approach to branch protection (2024+). They offer better flexibility and can layer multiple rules together. Legacy branch protection rules are still supported but rulesets are recommended for new repositories.
 
@@ -88,10 +119,6 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 10
-    reviewers:
-      - "your-username"  # Replace with your GitHub username
-    assignees:
-      - "your-username"  # Replace with your GitHub username
     commit-message:
       prefix: "deps"
       include: "scope"
@@ -168,7 +195,7 @@ permissions:
   contents: read
 
 jobs:
-  main:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -218,6 +245,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
+      # Optional: Auto-approve patch and minor updates (helpful for teams with required reviewers)
       - name: Approve patch and minor updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
@@ -227,11 +255,18 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable auto-merge for patch and minor updates
+      - name: Wait for CI and merge patch and minor updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
+        run: |
+          # Wait for required status checks to pass
+          while ! gh pr checks "$PR_URL" --required; do
+            echo "Waiting for CI checks to pass..."
+            sleep 30
+          done
+          # Merge the PR once CI passes
+          gh pr merge --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -243,30 +278,36 @@ jobs:
       github.event.pull_request.user.login == 'github-actions[bot]' &&
       contains(github.event.pull_request.labels.*.name, 'nx-migrate-action')
     steps:
-      - name: Wait for CI checks
-        uses: fountainhead/action-wait-for-check@v1.2.0
-        id: wait-for-checks
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          timeoutSeconds: 1800 # 30 minutes
+      # Optional: Auto-approve Nx migration PRs (helpful for teams with required reviewers)
+      - name: Approve Nx migration PR
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Auto-merge PR
-        if: steps.wait-for-checks.outputs.conclusion == 'success'
-        uses: pascalgn/merge-action@v0.15.6
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          merge_method: squash
+      - name: Wait for CI and merge PR
+        run: |
+          # Wait for required status checks to pass
+          while ! gh pr checks "$PR_URL" --required; do
+            echo "Waiting for CI checks to pass..."
+            sleep 30
+          done
+          # Merge the PR once CI passes
+          gh pr merge --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 This unified workflow handles both:
-- **Dependabot PRs**: Only auto-merges patch and minor updates, requires manual review for major versions
-- **Nx Migration PRs**: Auto-merges after CI validation passes
+- **Dependabot PRs**: Only merges patch and minor updates after CI passes, requires manual review for major versions
+- **Nx Migration PRs**: Merges after CI validation passes
 
 > **Security Notes**:
 > - Dependabot major version updates require manual approval
 > - Both job types respect branch protection rules and require CI validation
-> - Uses official GitHub recommended approaches for each bot type
+> - Uses wait-and-merge approach that doesn't require repository-wide auto-merge setting
+> - Regular PRs are unaffected and require manual merge
 
 
 ## 🎯 How It Works
@@ -276,7 +317,7 @@ This unified workflow handles both:
 3. **Migration**: Automatically runs `nx migrate` if updates are available
 4. **PR Creation**: Creates a pull request with migration changes
 5. **CI Validation**: Your existing CI workflow (generated by Nx or custom) validates the changes
-6. **Auto-merge**: If CI passes, the PR is automatically merged (if enabled)
+6. **Automatic Merge**: If CI passes, the dependency workflow automatically merges the PR
 
 ## 📚 Learn More About This Setup
 
@@ -336,7 +377,7 @@ npx nx migrate --run-migrations
 This demo uses the [`gridatek/nx-migrate-action`](https://github.com/gridatek/nx-migrate-action) GitHub Action.
 
 - **GitHub Repository**: [gridatek/nx-migrate-action](https://github.com/gridatek/nx-migrate-action)
-- **GitHub Marketplace**: [Nx Migration Action](https://github.com/marketplace/actions/nx-migration)
+- **GitHub Marketplace**: [Nx Migrate Action](https://github.com/marketplace/actions/nx-migrate-action)
 - **Issues & Support**: [Report issues](https://github.com/gridatek/nx-migrate-action/issues)
 
 ### Contributing

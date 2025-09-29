@@ -96,23 +96,27 @@ Here's how to protect your main branch using GitHub's modern Rulesets approach:
 
 **Configure Branch Targeting**
 1. Click "Add a target"
-2. Select "Include default branch" or specify `main` as the branch pattern
+2. Select "Include default branch" (shows as `~DEFAULT_BRANCH`)
 
 **Key Protection Rules**
 - **Require pull requests before merging**
   - Enable "Require a pull request before merging"
-  - Set required number of reviewers (recommended: at least 1)
-  - Enable "Dismiss stale reviews when new commits are pushed"
+  - Set required number of reviewers to 0 (for solo projects) or at least 1 for team projects
 
 - **Require status checks to pass**
   - Enable "Require status checks to pass"
   - Enable "Require branches to be up to date before merging"
-  - Add your GitHub Actions workflow jobs as required status checks
+  - In the "Additional settings" section, type `ci` and click the ➕ plus icon to add it
+  - This corresponds to the job name from the CI workflow
 
 - **Additional protections**
   - Enable "Require conversation resolution before merging"
-  - Enable "Block force pushes"
-  - Configure "Restrict pushes that create files" if needed
+  - Enable "Block force pushes" (prevents non_fast_forward pushes)
+  - Enable "Restrict deletions" (prevents branch deletion)
+
+- **Merge method restrictions (within pull request rule)**
+  - In pull request settings, specify "allowed_merge_methods": ["squash"]
+  - This enforces squash-only merging to match the auto-merge workflow
 
 **Rulesets Benefits**: Modern approach (2024+) with better flexibility, multiple rules can layer together, and improved organization-level management.
 
