@@ -96,7 +96,7 @@ Here's how to protect your main branch using GitHub's modern Rulesets approach:
 
 **Configure Branch Targeting**
 1. Click "Add a target"
-2. Select "Include default branch" or specify `main` as the branch pattern
+2. Select "Include default branch" (shows as `~DEFAULT_BRANCH`)
 
 **Key Protection Rules**
 - **Require pull requests before merging**
@@ -112,11 +112,12 @@ Here's how to protect your main branch using GitHub's modern Rulesets approach:
 
 - **Additional protections**
   - Enable "Require conversation resolution before merging"
-  - Enable "Block force pushes"
-  - Enable "Require linear history" (forces squash or rebase merges, prevents merge commits)
+  - Enable "Block force pushes" (prevents non_fast_forward pushes)
+  - Enable "Restrict deletions" (prevents branch deletion)
 
-- **Optional: Restrict merge type**
-  - Consider enabling "Require a merge type of merge, squash, or rebase" and select only "squash" to match the auto-merge workflow
+- **Merge method restrictions (within pull request rule)**
+  - In pull request settings, specify "allowed_merge_methods": ["squash"]
+  - This enforces squash-only merging to match the auto-merge workflow
 
 **Rulesets Benefits**: Modern approach (2024+) with better flexibility, multiple rules can layer together, and improved organization-level management.
 
