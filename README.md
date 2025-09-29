@@ -75,16 +75,30 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 #### Finalize Ruleset
 1. Click **"Create"** to activate the ruleset
 
-#### Configure Repository Merge Methods (Optional)
-After creating the ruleset, you may also want to configure allowed merge methods at the repository level:
+#### Configure Repository Merge Methods (Important)
+Configure allowed merge methods at the repository level to match your auto-merge workflows:
 
 1. Go to **Settings** → **General** → **Pull Requests**
 2. Under **"Merge button"**, configure:
-   - ✅ **"Allow merge commits"** (optional)
-   - ✅ **"Allow squash merging"** (recommended, matches auto-merge workflow)
-   - ✅ **"Allow rebase merging"** (optional)
 
-> **Note**: At least one merge method must be enabled. If you want to enforce only squash merging, enable only "Allow squash merging" here and use the "Require a merge type" rule in your ruleset.
+**Allow merge commits**
+- ❌ **Disable** (optional) - Adds all commits from head branch with a merge commit
+- Creates merge commits in history
+
+**Allow squash merging** ⭐
+- ✅ **Enable** (recommended) - Combines all commits into a single commit
+- **Matches our auto-merge workflow** which uses `--squash`
+- Creates clean, linear history
+
+**Allow rebase merging**
+- ❌ **Disable** (optional) - Adds all commits individually without merge commit
+- Can create complex history
+
+> **Important**:
+> - **At least one option must be enabled**
+> - **Our auto-merge workflows use squash merging** (`--squash` flag)
+> - **For clean history**: Enable only "Allow squash merging"
+> - **If you have linear history requirement** in branch protection, you must enable squashing or rebasing
 
 > **Important**: Rulesets are GitHub's modern approach to branch protection (2024+). They offer better flexibility and can layer multiple rules together. Legacy branch protection rules are still supported but rulesets are recommended for new repositories.
 
