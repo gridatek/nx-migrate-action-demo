@@ -261,10 +261,10 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'nx-migrate-action')
     steps:
       - name: Auto-merge PR
-        uses: pascalgn/merge-action@v0.15.6
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          merge_method: squash
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 This unified workflow handles both:
