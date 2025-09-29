@@ -76,13 +76,10 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 1. Click **"Create"** to activate the ruleset
 
 #### Configure Repository Merge Methods (Important)
-Configure allowed merge methods at the repository level to match your auto-merge workflows:
+Configure allowed merge methods at the repository level to match your dependency merge workflows:
 
 1. Go to **Settings** → **General** → **Pull Requests**
-2. **Enable Auto-merge** (Required for auto-merge workflows):
-   - ✅ Check **"Allow auto-merge"**
-   - This enables the `gh pr merge --auto` functionality used in the auto-merge workflows
-3. Under **"Merge button"**, configure:
+2. Under **"Merge button"**, configure:
 
 **Allow merge commits**
 - ❌ **Disable** (optional) - Adds all commits from head branch with a merge commit
@@ -90,7 +87,7 @@ Configure allowed merge methods at the repository level to match your auto-merge
 
 **Allow squash merging** ⭐
 - ✅ **Enable** (recommended) - Combines all commits into a single commit
-- **Matches our auto-merge workflow** which uses `--squash`
+- **Matches our dependency merge workflow** which uses `--squash`
 - Creates clean, linear history
 
 **Allow rebase merging**
@@ -99,7 +96,7 @@ Configure allowed merge methods at the repository level to match your auto-merge
 
 > **Important**:
 > - **At least one option must be enabled**
-> - **Our auto-merge workflows use squash merging** (`--squash` flag)
+> - **Our dependency merge workflows use squash merging** (`--squash` flag)
 > - **For clean history**: Enable only "Allow squash merging"
 > - **If you have linear history requirement** in branch protection, you must enable squashing or rebasing
 
