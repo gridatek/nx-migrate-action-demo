@@ -111,7 +111,7 @@ updates:
       time: "09:00"
 ```
 
-> **Note**: This configuration excludes major Nx updates since the `nx-migrate-action` handles those with proper migrations. Dependabot will only handle patch updates for Nx packages and other non-Nx dependencies.
+> **Note**: This configuration completely ignores all Nx packages since the `nx-migrate-action` handles all Nx updates with proper migrations. Dependabot will only manage non-Nx dependencies.
 
 ### Step 5: Add Nx Migration Workflow
 
