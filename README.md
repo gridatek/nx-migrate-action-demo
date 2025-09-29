@@ -79,7 +79,10 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 Configure allowed merge methods at the repository level to match your auto-merge workflows:
 
 1. Go to **Settings** → **General** → **Pull Requests**
-2. Under **"Merge button"**, configure:
+2. **Enable Auto-merge** (Required for auto-merge workflows):
+   - ✅ Check **"Allow auto-merge"**
+   - This enables the `gh pr merge --auto` functionality used in the auto-merge workflows
+3. Under **"Merge button"**, configure:
 
 **Allow merge commits**
 - ❌ **Disable** (optional) - Adds all commits from head branch with a merge commit
