@@ -176,10 +176,10 @@ jobs:
 
 ### Step 7: Add Auto-merge Workflow (Optional)
 
-Create `.github/workflows/auto-merge-nx-prs.yml`:
+Create `.github/workflows/auto-merge-dependency-prs.yml`:
 
 ```yaml
-name: Auto-merge Nx Migration PRs
+name: Auto-merge Dependency PRs
 
 on:
   pull_request:
@@ -188,19 +188,47 @@ on:
     types: [completed]
   status: {}
 
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
 jobs:
-  auto-merge:
+  dependabot:
+    name: Auto-merge Dependabot PR
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Approve patch and minor updates
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for patch and minor updates
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  nx-migrate:
     name: Auto-merge Nx Migration PR
     runs-on: ubuntu-latest
     if: |
       github.event.pull_request.user.login == 'github-actions[bot]' &&
       contains(github.event.pull_request.labels.*.name, 'nx-migrate-action')
-
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: read
-
     steps:
       - name: Wait for CI checks
         uses: fountainhead/action-wait-for-check@v1.2.0
@@ -217,6 +245,15 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           merge_method: squash
 ```
+
+This unified workflow handles both:
+- **Dependabot PRs**: Only auto-merges patch and minor updates, requires manual review for major versions
+- **Nx Migration PRs**: Auto-merges after CI validation passes
+
+> **Security Notes**:
+> - Dependabot major version updates require manual approval
+> - Both job types respect branch protection rules and require CI validation
+> - Uses official GitHub recommended approaches for each bot type
 
 
 ## 🎯 How It Works
