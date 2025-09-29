@@ -352,7 +352,7 @@ npx nx migrate --run-migrations
 This demo uses the [`gridatek/nx-migrate-action`](https://github.com/gridatek/nx-migrate-action) GitHub Action.
 
 - **GitHub Repository**: [gridatek/nx-migrate-action](https://github.com/gridatek/nx-migrate-action)
-- **GitHub Marketplace**: [Nx Migration Action](https://github.com/marketplace/actions/nx-migration)
+- **GitHub Marketplace**: [Nx Migrate Action](https://github.com/marketplace/actions/nx-migrate-action)
 - **Issues & Support**: [Report issues](https://github.com/gridatek/nx-migrate-action/issues)
 
 ### Contributing
