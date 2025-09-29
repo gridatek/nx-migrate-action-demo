@@ -47,13 +47,13 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 
 #### Configure Branch Targeting
 1. Click **"Add a target"**
-2. Select **"Include default branch"** or specify `main` as the branch pattern
+2. Select **"Include default branch"** (this will show as `~DEFAULT_BRANCH` in the configuration)
 
 #### Key Protection Rules
 
 **Require pull requests**
 - ✅ Enable **"Require a pull request before merging"**
-- Set **Required number of reviewers** (recommended: at least 1)
+- Set **Required number of reviewers** to **0** (for solo projects) or at least 1 for team projects
 - ✅ Enable **"Dismiss stale reviews when new commits are pushed"**
 
 **Require status checks**
@@ -66,11 +66,26 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 
 **Additional protections**
 - ✅ Enable **"Require conversation resolution before merging"**
-- ✅ Enable **"Block force pushes"**
-- ✅ Configure **"Restrict pushes that create files"** if needed
+- ✅ Enable **"Block force pushes"** (prevents `non_fast_forward` pushes)
+- ✅ Enable **"Restrict deletions"** (prevents branch deletion)
+
+**Merge method restrictions (within pull request rule)**
+- In the pull request settings, you can specify **"allowed_merge_methods"**
+- Set to **["squash"]** to match your auto-merge workflow and enforce squash-only merging
 
 #### Finalize Ruleset
 1. Click **"Create"** to activate the ruleset
+
+#### Configure Repository Merge Methods (Optional)
+After creating the ruleset, you may also want to configure allowed merge methods at the repository level:
+
+1. Go to **Settings** → **General** → **Pull Requests**
+2. Under **"Merge button"**, configure:
+   - ✅ **"Allow merge commits"** (optional)
+   - ✅ **"Allow squash merging"** (recommended, matches auto-merge workflow)
+   - ✅ **"Allow rebase merging"** (optional)
+
+> **Note**: At least one merge method must be enabled. If you want to enforce only squash merging, enable only "Allow squash merging" here and use the "Require a merge type" rule in your ruleset.
 
 > **Important**: Rulesets are GitHub's modern approach to branch protection (2024+). They offer better flexibility and can layer multiple rules together. Legacy branch protection rules are still supported but rulesets are recommended for new repositories.
 
