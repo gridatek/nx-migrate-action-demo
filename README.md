@@ -53,7 +53,7 @@ Here's how to protect your main branch using GitHub's modern **Rulesets** approa
 
 **Require pull requests**
 - ✅ Enable **"Require a pull request before merging"**
-- Set **Required number of reviewers** (recommended: at least 1)
+- Set **Required number of reviewers** to **0** (for solo projects) or at least 1 for team projects
 - ✅ Enable **"Dismiss stale reviews when new commits are pushed"**
 
 **Require status checks**
