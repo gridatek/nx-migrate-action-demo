@@ -252,16 +252,6 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      # Optional: Auto-approve patch and minor updates (helpful for teams with required reviewers)
-      - name: Approve patch and minor updates
-        if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Wait for CI and merge patch and minor updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
@@ -285,13 +275,6 @@ jobs:
       github.event.pull_request.user.login == 'github-actions[bot]' &&
       contains(github.event.pull_request.labels.*.name, 'nx-migrate-action')
     steps:
-      # Optional: Auto-approve Nx migration PRs (helpful for teams with required reviewers)
-      - name: Approve Nx migration PR
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Wait for CI and merge PR
         run: |
           # Wait for required status checks to pass
@@ -310,11 +293,12 @@ This unified workflow handles both:
 - **Dependabot PRs**: Only merges patch and minor updates after CI passes, requires manual review for major versions
 - **Nx Migration PRs**: Merges after CI validation passes
 
-> **Security Notes**:
-> - Dependabot major version updates require manual approval
+> **Important Notes**:
+> - Dependabot major version updates require manual approval and merge
 > - Both job types respect branch protection rules and require CI validation
 > - Uses wait-and-merge approach that doesn't require repository-wide auto-merge setting
 > - Regular PRs are unaffected and require manual merge
+> - This workflow works with 0 or more required approvals configured in branch protection
 
 
 ## 🎯 How It Works
