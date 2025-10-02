@@ -1,10 +1,17 @@
 # Nx Migrate Action Demo
 
-This repository demonstrates how to set up automated Nx migrations using the [`gridatek/nx-migrate-action`](https://github.com/gridatek/nx-migrate-action) GitHub Action with auto-merge capabilities.
+This repository demonstrates a complete production-ready setup for an Nx workspace with:
+- **Automated Nx Migrations**: Using [`gridatek/nx-migrate-action`](https://github.com/gridatek/nx-migrate-action)
+- **Dependabot Integration**: Automated dependency updates for non-Nx packages
+- **Smart Auto-merge**: Separate workflows for Dependabot and Nx migration PRs with CI validation
+- **Branch Protection**: Modern GitHub Rulesets configuration
+- **Best Practices**: CI/CD pipeline, code formatting, and TypeScript project references
 
-## 🚀 Quick Setup Guide
+> **Note for Claude Code Users**: This repository includes a `CLAUDE.md` file with comprehensive guidance for working with this codebase, including common commands, architecture details, and important configuration notes.
 
-Follow these steps to create your own Nx workspace with automated migrations:
+## 🚀 Complete Setup Guide
+
+Follow these steps to create your own production-ready Nx workspace with automated dependency management:
 
 ### Step 1: Create a New Nx Workspace
 
