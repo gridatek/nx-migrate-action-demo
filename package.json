@@ -8,7 +8,7 @@
   "devDependencies": {
     "@nx/js": "21.6.3",
     "@swc-node/register": "~1.11.1",
-    "@swc/core": "~1.15.1",
+    "@swc/core": "~1.15.2",
     "@swc/helpers": "~0.5.11",
     "nx": "21.6.3",
     "prettier": "^3.6.2",
